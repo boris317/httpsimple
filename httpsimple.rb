@@ -4,9 +4,9 @@ require 'uri'
 module HttpSimple
   
   def self.request
-    req = Http.new
+    http = Http.new
     if block_given?
-      yield req
+      yield http
     end
   end
   
@@ -16,7 +16,7 @@ module HttpSimple
     def initialize      
 
       @headers = {}
-      @max_redirects = 3
+      @max_redirects = 3 
       @strict_ssl = true
       @timeout = 90
                   
@@ -37,7 +37,7 @@ module HttpSimple
     
     def post(url, body=nil)
       uri = URI(url)      
-      request = HTTP::Post.new(get_path(uri))
+      request = Net::HTTP::Post.new(get_path(uri))
       
       case body
       when String
@@ -54,9 +54,7 @@ module HttpSimple
       
     end
      
-    def fetch(uri, request, limit=0)
-      raise "Max redirects (#{@max_redirects}) exceeded." if limit < 0
-                
+    def fetch(uri, request, limit=1)                
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = uri.scheme == 'https'
       http.verify_mode = OpenSSL::SSL::VERIFY_NONE unless @scrict_ssl
@@ -72,6 +70,7 @@ module HttpSimple
       when Net::HTTPSuccess
         return response
       when Net::HTTPRedirection
+        raise "Max redirects exceeded." if limit == 0        
         block = lambda { |url, req| fetch(url, req, limit - 1) }
         if request.is_a? Net::HTTP::Get
           get(response['location'], &block) 
