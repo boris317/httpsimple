@@ -4,13 +4,13 @@ require 'uri'
 module HttpSimple
   
   def self.request
-    req = Request.new
+    req = Http.new
     if block_given?
       yield req
     end
   end
   
-  class Request
+  class Http
     attr_accessor :headers, :max_redirects, 
       :strict_ssl, :timeout
     def initialize      
