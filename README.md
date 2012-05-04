@@ -6,7 +6,6 @@ Thin wrapper around net/http. Handles HTTPS and follows redirects.
 
 ```Ruby
 # Get request
-
 response = HttpSimple.get('http://www.service.com/user')
 # Adding query parameters
 response = HttpSimple.get('http://www.service.com/user', :username => 'bob')
@@ -20,7 +19,8 @@ response = HttpSimple.post('http://www.service.com/user', :username => 'bob')
 response = HttpSimple.post('http://www.service.com/user', 'I am the post body!')
 
 # Stuff you can set
-response = HttpSimple.post('https://www.service.com/login', :username => 'bob', :password => '1234') do |http|
+url = 'https://www.service.com/login'
+response = HttpSimple.post(url, :username => 'bob', :password => '1234') do |http|
   # headers
   http.headers["Accept"]
   # read time out (default 90)
