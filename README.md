@@ -2,9 +2,15 @@
 
 Thin wrapper around net/http. Handles HTTPS and follows redirects.
 
+## Install
+```
+$ gem install HttpSimple
+```
+	
 ## Examples
 
 ```Ruby
+require 'httpsimple'
 # Get request
 response = HttpSimple.get('http://www.service.com/user')
 # Adding query parameters
@@ -30,6 +36,6 @@ response = HttpSimple.post(url, :username => 'bob', :password => '1234') do |htt
   # turn off ssl cert verification - dangerous
   http.strict_ssl = false
 end
-
+```
 
 
