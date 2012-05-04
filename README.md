@@ -22,7 +22,7 @@ response = HttpSimple.post('http://www.service.com/user', 'I am the post body!')
 url = 'https://www.service.com/login'
 response = HttpSimple.post(url, :username => 'bob', :password => '1234') do |http|
   # headers
-  http.headers["Accept"]
+  http.headers['Accept'] = 'gzip, deflate' 
   # read time out (default 90)
   http.timeout = 120
   # max number of redirects to follow (default 3)
