@@ -31,7 +31,6 @@ module HttpSimple
     
     def get(url, params=nil)
       uri = URI(url)
-      puts params
       uri.query = URI.encode_www_form(params) unless params.nil?
       request = Net::HTTP::Get.new(get_path(uri))
 

@@ -3,7 +3,7 @@ require 'httpsimple'
 
 Gem::Specification.new do |s|
   s.name         = "HttpSimple"
-  s.version      = '0.9'
+  s.version      = '0.9.0'
   s.date         = Time.now.strftime('%Y-%m-%d')
   s.summary      = "Simple wrapper around Ruby's net/http"
   s.homepage     = "https://github.com/boris317/httpsimple"
