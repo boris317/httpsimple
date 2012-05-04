@@ -2,14 +2,22 @@ require 'net/http'
 require 'uri'
 
 module HttpSimple
-  
-  def self.request
-    http = Http.new
-    if block_given?
-      yield http
-    end
+    
+  def self.get(url, data=nil, &block)
+    request(url, :get, data, &block)
   end
   
+  def self.post(url, data=nil, &block)
+    request(url, :post, data, &block)
+  end  
+  
+  def self.request(url, get_or_post, data, &block)
+    http = Http.new    
+    block.call(http) unless block.nil?    
+    http.send(get_or_post, url, data)
+  end
+  private_class_method :request
+    
   class Http
     attr_accessor :headers, :max_redirects, 
       :strict_ssl, :timeout
@@ -24,7 +32,8 @@ module HttpSimple
     
     def get(url, params=nil)
       uri = URI(url)
-      uri.query = URI.encode_www_form(params) if params
+      puts params
+      uri.query = URI.encode_www_form(params) unless params.nil?
       request = Net::HTTP::Get.new(get_path(uri))
 
       if block_given?      
@@ -35,8 +44,7 @@ module HttpSimple
       
     end
     
-    def post(url, body=nil)
-      uri = URI(url)      
+    def post(url, body=nil)      
       request = Net::HTTP::Post.new(get_path(uri))
       
       case body
@@ -83,7 +91,7 @@ module HttpSimple
     end
     
     def get_path(uri)
-      if uri.path.length < 0 and uri.query.nil?
+      if uri.path.length == 0 and uri.query.nil?
         "/"
       elsif uri.query.nil?
         uri.path
