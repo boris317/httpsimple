@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.date         = Time.now.strftime('%Y-%m-%d')
   s.summary      = "Simple wrapper around Ruby's net/http"
   s.homepage     = "https://github.com/boris317/httpsimple"
-  s.email        = ""
+  s.email        = "ruby.httpsimple@gmail.com"
   s.authors      = [ "Shawn Adams" ]
   s.has_rdoc     = false
 
