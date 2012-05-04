@@ -49,9 +49,9 @@ module HttpSimple
       
       case body
       when String
-        request.body = post_body
+        request.body = body
       when Hash
-        request.set_form_data(post_body)
+        request.set_form_data(body)
       end
       
       if block_given?      
