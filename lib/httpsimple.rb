@@ -42,7 +42,8 @@ module HttpSimple
       
     end
     
-    def post(url, body=nil)      
+    def post(url, body=nil)
+      uri = URI(url)      
       request = Net::HTTP::Post.new(get_path(uri))
       
       case body
