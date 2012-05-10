@@ -10,6 +10,10 @@ module HttpSimple
     request(url, :post, data, &block)
   end  
   
+  def self.new
+    Http.new
+  end
+  
   def self.request(url, get_or_post, data, &block)
     http = Http.new
     block.call(http) unless block.nil?    
@@ -17,22 +21,45 @@ module HttpSimple
   end
   private_class_method :request
     
+  # Raised when max redirects exceeded.
+  class HTTPMaxRedirectError < StandardError
+    def initialize(max)
+      super("Max redirects (#{max}) exceeded.")
+    end
+  end
+  
   class Http
     attr_accessor :headers, :max_redirects, 
-      :strict_ssl, :timeout
-    def initialize      
+      :strict_ssl, :timeout, :handlers
+    attr_reader :url
+    
+    def initialize  
 
       @headers = {}
       @max_redirects = 3 
       @strict_ssl = true
       @timeout = 90
+      # Response handlers
+      @handlers = {}
                   
+    end
+    
+    def add_handler(*status_codes, &handler)
+      # Add response handle for http status code. ie 200, 302, 400
+      if block_given?
+        status_codes.each { |code| @handlers[code.to_s.to_sym] = handler }
+      end
+    end
+    
+    def remove_handler(*status_codes)
+      # Remove response handler for http status code.
+      status_codes.each { |code| @handlers.delete(code.to_s.to_sym) }
     end
     
     def get(url, params=nil)
       uri = URI(url)
       uri.query = URI.encode_www_form(params) unless params.nil?
-      request = Net::HTTP::Get.new(get_path(uri))
+      request = Net::HTTP::Get.new(uri.to_s)
 
       if block_given?      
         yield uri, request
@@ -44,7 +71,7 @@ module HttpSimple
     
     def post(url, body=nil)
       uri = URI(url)      
-      request = Net::HTTP::Post.new(get_path(uri))
+      request = Net::HTTP::Post.new(uri.to_s)
       
       case body
       when String
@@ -73,21 +100,28 @@ module HttpSimple
         http.request(request)
       end
       
+      code = response.code.to_sym
+      if @handlers.key?(code)
+        @handlers[code].call(http, request, response)
+      end
+              
       case response
       when Net::HTTPSuccess
         return response
       when Net::HTTPRedirection
-        raise "Max redirects exceeded." if limit == 0        
+        raise HTTPMaxRedirectError.new(@max_redirects) if limit == 0        
         block = lambda { |url, req| fetch(url, req, limit - 1) }
         if request.is_a? Net::HTTP::Get
           get(response['location'], &block) 
         elsif request.is_a? Net::HTTP::Post
           post(response['location'], &block)
         end
-      else response.error!
+      when Net::HTTPResponse
+        response.error!
       end
       
     end
+    private :fetch
     
     def get_path(uri)
       if uri.path.length == 0 and uri.query.nil?
