@@ -19,9 +19,6 @@ response = HttpSimple.get('http://www.service.com/user')
 <tt>response</tt> is a Net::HTTPOk object.
 
 ### POST requests are simple
-You can pass parameter as a Hash. This will build an **** request.
-If you pass a string it will be used as the raw post body.
-
 ```Ruby
 # Parameter as a Hash will send an application/x-www-form-urlencoded request
 response = HttpSimple.post('http://www.service.com/user', :username => 'bob')
@@ -58,9 +55,9 @@ end
 You can register a code blocks to run when a certain http status code is received. Your code block
 should accept three arguments.
 
-	1. Net::HTTP object.
-	2. Net::HTTPRequest object.
-	3. Net::HTTPResponse object.
+1. Net::HTTP object.
+2. Net::HTTPRequest object.
+3. Net::HTTPResponse object.
 	
 ```Ruby
 simple = HttpSimple.new
