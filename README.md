@@ -52,8 +52,8 @@ end
 
 ## Response handlers
 
-You can register a code blocks to run when a certain http status code is received. Your code block
-should accept three arguments.
+You can register a code block to run when a certain http status code is received. Your code block
+should accept three arguments:
 
 1. Net::HTTP object.
 2. Net::HTTPRequest object.
