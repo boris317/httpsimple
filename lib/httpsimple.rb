@@ -2,7 +2,7 @@ require 'net/http'
 require 'uri'
 
 module HttpSimple
-  VERSION='1.0.1'
+  VERSION='1.0.2'
   def self.get(url, data=nil, &block)
     request(url, :get, data, &block)
   end
@@ -61,7 +61,7 @@ module HttpSimple
     def get(url, params=nil)
       uri = URI(url)
       uri.query = URI.encode_www_form(params) unless params.nil?
-      request = Net::HTTP::Get.new(uri.to_s)
+      request = Net::HTTP::Get.new(uri.request_uri)
 
       if block_given?      
         yield uri, request
@@ -73,7 +73,7 @@ module HttpSimple
     
     def post(url, body=nil)
       uri = URI(url)      
-      request = Net::HTTP::Post.new(uri.to_s)
+      request = Net::HTTP::Post.new(uri.request_uri)
       
       case body
       when String

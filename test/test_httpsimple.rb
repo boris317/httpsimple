@@ -33,6 +33,11 @@ class TestModuleMethods < Test::Unit::TestCase
     assert_equal HttpSimple.get(url, :foo => "bar").body, FakeWeb.response_for(:get, "#{url}?foo=bar").body    
     assert FakeWeb.last_request.path.include?("foo=bar"), "Query string does not conatin 'foo=bar'"
   end
+  def test_get_with_query_string_in_url
+    url = "http://example.com?foo=bar"
+    assert_equal HttpSimple.get(url).body, FakeWeb.response_for(:get, url).body
+    assert FakeWeb.last_request.path.include?("foo=bar"), "Query string does not conatin 'foo=bar'"    
+  end
 end
 
 class TestHttpObject < Test::Unit::TestCase
