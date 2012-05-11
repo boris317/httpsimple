@@ -2,6 +2,7 @@ require 'net/http'
 require 'uri'
 
 module HttpSimple
+  VERSION='1.0.1'
   def self.get(url, data=nil, &block)
     request(url, :get, data, &block)
   end
@@ -30,13 +31,14 @@ module HttpSimple
   
   class Http
     attr_accessor :headers, :max_redirects, 
-      :strict_ssl, :timeout, :handlers
+      :strict_ssl, :timeout, :handlers, :follow_redirects
     attr_reader :url
     
     def initialize  
 
       @headers = {}
-      @max_redirects = 3 
+      @max_redirects = 3
+      @follow_redirects = true
       @strict_ssl = true
       @timeout = 90
       # Response handlers
@@ -109,12 +111,16 @@ module HttpSimple
       when Net::HTTPSuccess
         return response
       when Net::HTTPRedirection
+        return response unless @follow_redirects
         raise HTTPMaxRedirectError.new(@max_redirects) if limit == 0        
         block = lambda { |url, req| fetch(url, req, limit - 1) }
+        new_uri = URI(response['location'])
+        # Handle relative redirects ie /foo        
+        new_uri = uri + new_uri unless new_uri.is_a? URI::HTTP
         if request.is_a? Net::HTTP::Get
-          get(response['location'], &block) 
+          get(new_uri, &block) 
         elsif request.is_a? Net::HTTP::Post
-          post(response['location'], &block)
+          post(new_uri, &block)
         end
       when Net::HTTPResponse
         response.error!

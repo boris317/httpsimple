@@ -1,11 +1,14 @@
-require 'httpsimple'
+#require File.expand_path(File.join(File.dirname(__FILE__), "..", "lib", "httpsimple"))
 require 'test/unit'
 require 'fakeweb'
+require 'httpsimple'
 
 FakeWeb.register_uri(:any, "http://example.com/redirect", :status=>[302, 'Found'], :location=>"http://example.com")
+FakeWeb.register_uri(:any, "http://example.com/redirect2", :status=>[302, 'Found'], :location=>"/FooBar")
 
 FakeWeb.register_uri(:get, "http://example.com", :body=>"Get Hello World!")
 FakeWeb.register_uri(:get, "http://example.com?foo=bar", :body=>"Get Hello Foo!")
+FakeWeb.register_uri(:get, "http://example.com/FooBar", :body=>"Get Hello FooBar!")
 FakeWeb.register_uri(:post, "http://example.com", :body=>"Post Hello World!")
 FakeWeb.register_uri(:any, "https://example.com", :body=>"Https Hello World!")
 
@@ -46,7 +49,12 @@ class TestHttpObject < Test::Unit::TestCase
       FakeWeb.response_for(:post, "http://example.com").body
     )
   end
-  
+  def test_relative_uri_redirect
+    assert_equal(
+      HttpSimple.get("http://example.com/redirect2").body, 
+      FakeWeb.response_for(:get, "http://example.com/FooBar").body
+    )    
+  end
   def test_max_redirects
     url = "http://example.com/recurse"
     FakeWeb.register_uri(:get, url, :status=>[302, 'Found'], :location=>url)
@@ -54,7 +62,13 @@ class TestHttpObject < Test::Unit::TestCase
       HttpSimple.get(url)
     end
   end
-  
+  def test_dont_follow_redirects
+    res = HttpSimple.get("http://example.com/redirect") do |simple|
+      simple.follow_redirects = false
+    end
+    assert_equal res.code, "302"
+    assert_equal res['location'], "http://example.com"
+  end
   def test_response_handlers    
     http = HttpSimple.new
     handler_ran = false
@@ -66,8 +80,7 @@ class TestHttpObject < Test::Unit::TestCase
     
     assert_equal http.get("http://example.com/redirect").body, FakeWeb.response_for(:get, "http://example.com").body
     assert handler_ran, "302 response handler did not run!"
-  end
-  
+  end  
   def test_remove_response_handlers
     
     http = HttpSimple.new
@@ -85,8 +98,7 @@ class TestHttpObject < Test::Unit::TestCase
     http.remove_handler(200)
     http.get("http://example.com")
     assert handler_ran==false, "200 response handler should not have run!"    
-  end
-  
+  end  
   def test_https
     http = HttpSimple.new
     port = nil
