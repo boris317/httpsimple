@@ -61,10 +61,10 @@ should accept three arguments:
 	
 ```Ruby
 simple = HttpSimple.new
-simple.add_handler(200) do |http, req, res|
+simple.handle(200) do |http, req, res|
 	puts res.code # 200
 end
-simple.add_handler(301, 302) do |http, req, res|
+simple.handle(301, 302) do |http, req, res|
     puts "#{req.path} was redirected to #{res['location']}!"
 end
 res = simple.get("http://www.example.com")

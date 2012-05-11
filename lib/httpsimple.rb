@@ -2,7 +2,7 @@ require 'net/http'
 require 'uri'
 
 module HttpSimple
-  VERSION='1.0.2'
+  VERSION='1.0.3'
   def self.get(url, data=nil, &block)
     request(url, :get, data, &block)
   end
@@ -46,7 +46,7 @@ module HttpSimple
                   
     end
     
-    def add_handler(*status_codes, &handler)
+    def handle(*status_codes, &handler)
       # Add response handle for http status code. ie 200, 302, 400
       if block_given?
         status_codes.each { |code| @handlers[code.to_s.to_sym] = handler }

@@ -78,7 +78,7 @@ class TestHttpObject < Test::Unit::TestCase
     http = HttpSimple.new
     handler_ran = false
         
-    http.add_handler(301, 302) do |http, req, res|
+    http.handle(301, 302) do |http, req, res|
       assert_equal res.code, "302"
       handler_ran = true
     end
@@ -91,7 +91,7 @@ class TestHttpObject < Test::Unit::TestCase
     http = HttpSimple.new
     handler_ran = false
         
-    http.add_handler(200) do |http, req, res|
+    http.handle(200) do |http, req, res|
       assert_equal res.code, "200"
       handler_ran = true
     end
@@ -107,7 +107,7 @@ class TestHttpObject < Test::Unit::TestCase
   def test_https
     http = HttpSimple.new
     port = nil
-    http.add_handler(200) do |http, req, res|
+    http.handle(200) do |http, req, res|
       port = http.port
     end
     http.get("https://example.com")
