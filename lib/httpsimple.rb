@@ -2,7 +2,7 @@ require 'net/http'
 require 'uri'
 
 module HttpSimple
-  VERSION='1.0.3'
+  VERSION='1.0.4'
   def self.get(url, data=nil, &block)
     request(url, :get, data, &block)
   end
@@ -30,7 +30,7 @@ module HttpSimple
   end
   
   class Http
-    attr_accessor :headers, :max_redirects, 
+    attr_accessor :headers, :max_redirects, :debug,
       :strict_ssl, :timeout, :handlers, :follow_redirects
     attr_reader :url
     
@@ -41,6 +41,9 @@ module HttpSimple
       @follow_redirects = true
       @strict_ssl = true
       @timeout = 90
+      # If debug is set to true ``set_debug_output``
+      # will be enabled and write to $stderr
+      @debug = false
       # Response handlers
       @handlers = {}
                   
@@ -94,6 +97,7 @@ module HttpSimple
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = uri.scheme == 'https'
       http.verify_mode = OpenSSL::SSL::VERIFY_NONE unless @scrict_ssl
+      http.set_debug_output $stderr if @debug
       http.read_timeout = @timeout
       
       @headers.each_pair { |k,v| request[k] = v } unless @headers.empty?
