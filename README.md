@@ -47,6 +47,10 @@ response = HttpSimple.post(url, :username => 'bob', :password => '1234') do |sim
   simple.max_redirects = 2
   # Turn off ssl cert verification - dangerous
   simple.strict_ssl = false
+  # Debug output. calls set_debug_ouput on the
+  # underlying Net::HTTP object passing it $stderr
+  # WARNING: Unsafe for production
+  simple.debug = true
 end
 ```
 
